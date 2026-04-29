@@ -58,7 +58,10 @@ def register_view(request):
             messages.error(request, 'La contraseña debe tener al menos 6 caracteres.')
         else:
             user = User.objects.create_user(username=username, password=password1)
-            # El perfil lo crea la señal post_save automáticamente
+            # El perfil lo crea la señal post_save automáticamente.
+            # Se asigna el backend explícitamente para que login() funcione
+            # con usuarios creados directamente (sin pasar por authenticate()).
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
             messages.success(request, f'¡Bienvenido, {username}! Tu aventura comienza.')
             return redirect('dashboard')
