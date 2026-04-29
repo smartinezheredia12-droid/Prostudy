@@ -289,3 +289,18 @@ def admin_change_password(request):
             user.save()
             messages.success(request, f'Contraseña de {user.username} actualizada.')
     return redirect('admin_panel')
+
+
+@login_required
+def admin_delete_user(request, pk):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        user = get_object_or_404(User, pk=pk)
+        if user.is_superuser:
+            messages.error(request, 'No puedes eliminar un administrador.')
+        else:
+            username = user.username
+            user.delete()
+            messages.success(request, f'Usuario "{username}" eliminado correctamente.')
+    return redirect('admin_panel')

@@ -19,4 +19,5 @@ urlpatterns = [
     path('admin-panel/send-message/', views.admin_send_message, name='admin_send_message'),
     path('admin-panel/adjust-xp/', views.admin_adjust_xp, name='admin_adjust_xp'),
     path('admin-panel/change-password/', views.admin_change_password, name='admin_change_password'),
+    path('admin-panel/delete-user/<int:pk>/', views.admin_delete_user, name='admin_delete_user'),
 ]

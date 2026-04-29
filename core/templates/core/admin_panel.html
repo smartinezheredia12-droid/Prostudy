@@ -44,7 +44,14 @@
         </div>
       </div>
     </div>
-    <span class="badge badge-ok">Activo</span>
+    <div class="d-flex gap-2 align-center">
+      <span class="badge badge-ok">Activo</span>
+      <!-- ELIMINAR USUARIO -->
+      <form method="post" action="{% url 'admin_delete_user' u.pk %}" onsubmit="return confirm('¿Eliminar al usuario {{ u.username }}? Esta acción no se puede deshacer.')">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:0.75rem">🗑️ Eliminar</button>
+      </form>
+    </div>
   </div>
 
   <div class="grid-3" style="gap:12px">
