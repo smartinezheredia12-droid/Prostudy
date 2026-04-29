@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% block title %}Registrarse{% endblock %}
+{% block auth_content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="font-size:3rem;margin-bottom:8px">🌟</div>
+      <div class="logo-title">UNIRSE</div>
+      <div class="logo-sub">Comienza tu leyenda</div>
+    </div>
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags|default:'info' }}" style="margin-bottom:16px">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+    <form method="post" action="{% url 'register' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>👤 Nombre de Usuario</label>
+        <input type="text" name="username" placeholder="Elige tu nombre de batalla" required autofocus maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>🔐 Contraseña</label>
+        <input type="password" name="password1" placeholder="Mínimo 6 caracteres" required>
+      </div>
+      <div class="form-group">
+        <label>🔐 Confirmar Contraseña</label>
+        <input type="password" name="password2" placeholder="Repite tu contraseña" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:13px;font-size:1rem;margin-top:8px">
+        🚀 Iniciar mi Aventura
+      </button>
+    </form>
+    <div class="divider"></div>
+    <div class="text-center">
+      <span class="text-muted" style="font-size:0.88rem">¿Ya tienes cuenta? </span>
+      <a href="{% url 'login' %}" style="color:var(--orange);font-weight:600;text-decoration:none">Iniciar Sesión</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% block title %}Panel de Administración{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2 class="page-title">⚙️ Panel de Administración</h2>
+  <p class="page-subtitle">Gestiona usuarios, mensajes y puntos de experiencia</p>
+</div>
+
+<!-- Tu propio perfil (admin) -->
+<div class="card mb-4" style="border:2px solid var(--accent)">
+  <div class="d-flex justify-between align-center" style="margin-bottom:16px">
+    <div class="d-flex gap-3 align-center">
+      <div class="user-avatar" style="background:var(--accent)">{{ admin_profile.avatar_initial }}</div>
+      <div>
+        <div style="font-weight:700;font-size:1rem">{{ request.user.username }} <span style="font-size:0.75rem;color:var(--accent)">(tú · admin)</span></div>
+        <div style="font-size:0.8rem;color:var(--text3)">
+          {{ admin_profile.rank_display }} · Nivel {{ admin_profile.level }} · {{ admin_profile.xp }} XP · {{ admin_profile.league_display }}
+        </div>
+      </div>
+    </div>
+    <span class="badge badge-ok">Admin</span>
+  </div>
+  <div style="max-width:220px">
+    <p style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">⭐ Ajustar tu XP</p>
+    <form method="post" action="{% url 'admin_adjust_xp' %}">
+      {% csrf_token %}
+      <input type="hidden" name="user_id" value="{{ request.user.pk }}">
+      <input type="number" name="amount" placeholder="Ej: 100 o -20" style="margin-bottom:8px">
+      <button type="submit" class="btn btn-primary btn-sm w-full" style="justify-content:center">⚡ Aplicar</button>
+    </form>
+  </div>
+</div>
+
+{% if users %}
+{% for u in users %}
+<div class="card mb-4">
+  <div class="d-flex justify-between align-center" style="margin-bottom:16px">
+    <div class="d-flex gap-3 align-center">
+      <div class="user-avatar">{{ u.profile.avatar_initial }}</div>
+      <div>
+        <div style="font-weight:700;font-size:1rem">{{ u.username }}</div>
+        <div style="font-size:0.8rem;color:var(--text3)">
+          {{ u.profile.rank_display }} · Nivel {{ u.profile.level }} · {{ u.profile.xp }} XP · {{ u.profile.league_display }}
+        </div>
+      </div>
+    </div>
+    <span class="badge badge-ok">Activo</span>
+  </div>
+
+  <div class="grid-3" style="gap:12px">
+    <!-- ENVIAR MENSAJE -->
+    <div>
+      <p style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📣 Enviar Mensaje</p>
+      <form method="post" action="{% url 'admin_send_message' %}">
+        {% csrf_token %}
+        <input type="hidden" name="user_id" value="{{ u.pk }}">
+        <textarea name="message" placeholder="Escribe un mensaje..." style="font-size:0.85rem;margin-bottom:8px;min-height:60px" required></textarea>
+        <button type="submit" class="btn btn-primary btn-sm w-full" style="justify-content:center">📨 Enviar</button>
+      </form>
+    </div>
+
+    <!-- AJUSTAR XP -->
+    <div>
+      <p style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">⭐ Ajustar XP</p>
+      <form method="post" action="{% url 'admin_adjust_xp' %}">
+        {% csrf_token %}
+        <input type="hidden" name="user_id" value="{{ u.pk }}">
+        <input type="number" name="amount" placeholder="Ej: 50 o -20" style="margin-bottom:8px">
+        <button type="submit" class="btn btn-ghost btn-sm w-full" style="justify-content:center">⚡ Aplicar</button>
+      </form>
+    </div>
+
+    <!-- CAMBIAR CONTRASEÑA -->
+    <div>
+      <p style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🔐 Cambiar Contraseña</p>
+      <form method="post" action="{% url 'admin_change_password' %}">
+        {% csrf_token %}
+        <input type="hidden" name="user_id" value="{{ u.pk }}">
+        <input type="password" name="new_password" placeholder="Nueva contraseña" style="margin-bottom:8px" minlength="6">
+        <button type="submit" class="btn btn-danger btn-sm w-full" style="justify-content:center">🔑 Cambiar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card text-center" style="padding:48px">
+  <div style="font-size:3rem;margin-bottom:12px">👥</div>
+  <h3 class="font-title">Sin usuarios registrados</h3>
+  <p class="text-muted mt-4">Cuando los usuarios se registren aparecerán aquí.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}Iniciar Sesión{% endblock %}
+{% block auth_content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div style="font-size:3rem;margin-bottom:8px">⚔️</div>
+      <div class="logo-title">PROSTUDY</div>
+      <div class="logo-sub">Fight Procrastination</div>
+    </div>
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags|default:'info' }}" style="margin-bottom:16px">{{ msg }}</div>
+    {% endfor %}
+    {% endif %}
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>👤 Usuario</label>
+        <input type="text" name="username" placeholder="Tu nombre de usuario" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>🔐 Contraseña</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:13px;font-size:1rem;margin-top:8px">
+        ⚔️ Entrar al Campo de Batalla
+      </button>
+    </form>
+    <div class="divider"></div>
+    <div class="text-center">
+      <span class="text-muted" style="font-size:0.88rem">¿Nuevo guerrero? </span>
+      <a href="{% url 'register' %}" style="color:var(--orange);font-weight:600;text-decoration:none">Registrarse</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

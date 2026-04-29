@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}ProStudy{% endblock %} — Fight Procrastination</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚔️</div>
+      <div>
+        <h1>PROSTUDY</h1>
+        <small>FIGHT PROCRASTINATION</small>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ user.profile.avatar_initial }}</div>
+      <div class="username">{{ user.username }}</div>
+      <div class="rank-badge">{{ user.profile.rank_display }} · Nivel {{ user.profile.level }}</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="{% url 'tasks' %}" class="nav-item {% if 'task' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">📋</span> Mis Tareas
+      </a>
+      <a href="{% url 'folders' %}" class="nav-item {% if 'folder' in request.resolver_match.url_name %}active{% endif %}">
+        <span class="nav-icon">📁</span> Materias
+      </a>
+      <a href="{% url 'leagues' %}" class="nav-item {% if request.resolver_match.url_name == 'leagues' %}active{% endif %}">
+        <span class="nav-icon">🏆</span> Ligas
+      </a>
+      {% if user.is_superuser %}
+      <a href="{% url 'admin_panel' %}" class="nav-item {% if request.resolver_match.url_name == 'admin_panel' %}active{% endif %}">
+        <span class="nav-icon">⚙️</span> Panel Admin
+      </a>
+      {% endif %}
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="{% url 'logout' %}" class="btn btn-ghost w-full" style="justify-content:center">🚪 Salir</a>
+    </div>
+  </aside>
+  <!-- MAIN -->
+  <main class="main-content">
+    {% if messages %}
+    <div class="alerts-wrap">
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags|default:'info' }}">
+        {% if msg.tags == 'success' %}✅{% elif msg.tags == 'error' %}❌{% elif msg.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+        {{ msg }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+<script>
+  // mobile sidebar toggle
+  const sidebar = document.getElementById('sidebar');
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sidebar) sidebar.classList.remove('open');
+  });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

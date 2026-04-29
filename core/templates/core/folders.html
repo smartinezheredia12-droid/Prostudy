@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+{% block title %}Materias{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-between align-center">
+  <div>
+    <h2 class="page-title">📁 Mis Materias</h2>
+    <p class="page-subtitle">Organiza tus tareas por materia o asignatura</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('newFolderModal').classList.add('open')">
+    ➕ Nueva Materia
+  </button>
+</div>
+
+{% if folders %}
+<div class="folders-grid">
+  {% for folder in folders %}
+  <div style="position:relative">
+    <a href="{% url 'folder_detail' folder.pk %}" class="folder-card">
+      <div class="folder-top" style="background:{{ folder.color }}"></div>
+      <div class="folder-icon">📁</div>
+      <div class="folder-name">{{ folder.name }}</div>
+      <div class="folder-count">{{ folder.pending_count }} pendiente{% if folder.pending_count != 1 %}s{% endif %} / {{ folder.task_count }} total</div>
+    </a>
+    <form method="post" action="{% url 'folder_delete' folder.pk %}" 
+          style="position:absolute;top:12px;right:12px"
+          onsubmit="return confirm('¿Eliminar carpeta {{ folder.name }}?')">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm" style="padding:4px 8px">🗑</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card text-center" style="padding:48px">
+  <div style="font-size:4rem;margin-bottom:12px">📂</div>
+  <h3 class="font-title">Sin materias creadas</h3>
+  <p class="text-muted mt-4">Crea carpetas para organizar tus tareas por materia.</p>
+  <button class="btn btn-primary mt-4" onclick="document.getElementById('newFolderModal').classList.add('open')">
+    ➕ Crear primera materia
+  </button>
+</div>
+{% endif %}
+
+<!-- MODAL NUEVA CARPETA -->
+<div class="modal-overlay" id="newFolderModal">
+  <div class="modal">
+    <h3 class="modal-title">📁 Nueva Materia</h3>
+    <button class="modal-close" onclick="document.getElementById('newFolderModal').classList.remove('open')">✕</button>
+    <form method="post" action="{% url 'folder_create' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Nombre de la Materia *</label>
+        <input type="text" name="name" placeholder="Ej: Matemáticas, Historia, Inglés" required>
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input type="color" name="color" value="#F97316" style="height:44px;padding:4px">
+      </div>
+      <div class="d-flex gap-2" style="justify-content:flex-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('newFolderModal').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">✅ Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

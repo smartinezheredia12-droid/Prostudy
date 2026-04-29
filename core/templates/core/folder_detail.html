@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% load core_extras %}
+{% block title %}{{ folder.name }}{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-between align-center">
+  <div>
+    <h2 class="page-title">📁 {{ folder.name }}</h2>
+    <p class="page-subtitle"><a href="{% url 'folders' %}" style="color:var(--orange);text-decoration:none">Materias</a> › {{ folder.name }}</p>
+  </div>
+  <a href="{% url 'tasks' %}" class="btn btn-primary">➕ Agregar Tarea</a>
+</div>
+
+{% if tasks %}
+{% for task in tasks %}
+<div class="task-item {% if task.completed %}done{% else %}{{ task.urgency_class }}{% endif %}">
+  <div style="flex:1">
+    <div class="task-title {% if task.completed %}text-muted{% endif %}">
+      {% if task.completed %}✅{% endif %} {{ task.title }}
+    </div>
+    <div class="task-meta">
+      📅 {{ task.deadline }}
+      {% if not task.completed %}
+        {% if task.days_remaining < 0 %}· <span class="text-red">{{ task.days_remaining|abs }} días vencida</span>
+        {% elif task.days_remaining == 0 %}· <span class="text-yellow">¡Vence HOY!</span>
+        {% else %}· {{ task.days_remaining }} días restantes
+        {% endif %}
+      {% else %}· <span class="text-green">Completada</span>
+      {% endif %}
+    </div>
+  </div>
+  <span class="badge badge-{{ task.task_type }}">{{ task.get_task_type_display }}</span>
+  {% if not task.completed %}
+  <form method="post" action="{% url 'task_complete' task.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm">✓</button>
+  </form>
+  {% endif %}
+  <form method="post" action="{% url 'task_delete' task.pk %}" onsubmit="return confirm('¿Eliminar?')">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+  </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="card text-center" style="padding:40px">
+  <p class="text-muted">No hay tareas en esta materia aún.</p>
+  <a href="{% url 'tasks' %}" class="btn btn-primary mt-4">➕ Agregar desde Tareas</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'core/base.html' %}
+{% load core_extras %}
+{% block title %}Mis Tareas{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-between align-center">
+  <div>
+    <h2 class="page-title">📋 Mis Tareas</h2>
+    <p class="page-subtitle">Gestiona tus actividades y gana XP al completarlas</p>
+  </div>
+  <button class="btn btn-primary" onclick="document.getElementById('newTaskModal').classList.add('open')">
+    ➕ Nueva Tarea
+  </button>
+</div>
+
+<!-- FILTROS -->
+<div class="d-flex gap-2 mb-4" style="flex-wrap:wrap">
+  <span class="badge badge-individual" style="padding:6px 12px;cursor:pointer;font-size:0.82rem">👤 Individuales: +10 XP</span>
+  <span class="badge badge-colaborativo" style="padding:6px 12px;cursor:pointer;font-size:0.82rem">👥 Colaborativas: +20 XP</span>
+  <span style="color:var(--red);font-size:0.82rem;padding:6px">⚠️ Individuales vencidas: -5 XP/día</span>
+</div>
+
+<!-- TASK LIST -->
+{% if tasks %}
+{% for task in tasks %}
+<div class="task-item {% if task.completed %}done{% else %}{{ task.urgency_class }}{% endif %}">
+  <div style="flex:1">
+    <div class="task-title {% if task.completed %}text-muted{% endif %}">
+      {% if task.completed %}✅{% endif %} {{ task.title }}
+      {% if task.folder %}<span class="text-muted" style="font-size:0.78rem"> · 📁 {{ task.folder.name }}</span>{% endif %}
+    </div>
+    {% if task.description %}
+    <div class="task-meta">{{ task.description|truncatechars:60 }}</div>
+    {% endif %}
+    <div class="task-meta">
+      📅 Plazo: {{ task.deadline }}
+      {% if not task.completed %}
+        {% if task.days_remaining < 0 %}
+        · <span class="text-red">⚠️ {{ task.days_remaining|abs }} días vencida</span>
+        {% elif task.days_remaining == 0 %}
+        · <span class="text-yellow">🚨 ¡Vence HOY!</span>
+        {% else %}
+        · {{ task.days_remaining }} días restantes
+        {% endif %}
+      {% else %}
+        · <span class="text-green">Completada {{ task.completed_at|date:"d/m/Y" }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <span class="badge badge-{{ task.task_type }}">{{ task.get_task_type_display }}</span>
+  {% if not task.completed %}
+  <span class="badge" style="background:rgba(249,115,22,0.15);color:var(--orange)">+{{ task.xp_reward }} XP</span>
+  <form method="post" action="{% url 'task_complete' task.pk %}" style="display:inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success btn-sm" title="Marcar como completada">✓ Listo</button>
+  </form>
+  {% endif %}
+  <form method="post" action="{% url 'task_delete' task.pk %}" style="display:inline" onsubmit="return confirm('¿Eliminar esta tarea?')">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+  </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="card text-center" style="padding:48px">
+  <div style="font-size:4rem;margin-bottom:12px">📭</div>
+  <h3 class="font-title">Sin tareas registradas</h3>
+  <p class="text-muted mt-4">Crea tu primera tarea y comienza a ganar XP.</p>
+  <button class="btn btn-primary mt-4" onclick="document.getElementById('newTaskModal').classList.add('open')">
+    ➕ Crear primera tarea
+  </button>
+</div>
+{% endif %}
+
+<!-- MODAL NUEVA TAREA -->
+<div class="modal-overlay" id="newTaskModal">
+  <div class="modal">
+    <h3 class="modal-title">➕ Nueva Tarea</h3>
+    <button class="modal-close" onclick="document.getElementById('newTaskModal').classList.remove('open')">✕</button>
+    <form method="post" action="{% url 'task_create' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Título *</label>
+        <input type="text" name="title" placeholder="Nombre de la tarea" required>
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea name="description" placeholder="Detalles opcionales..."></textarea>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Tipo de Tarea</label>
+          <select name="task_type">
+            <option value="individual">👤 Individual</option>
+            <option value="colaborativo">👥 Colaborativa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fecha Límite *</label>
+          <input type="date" name="deadline" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Materia / Carpeta (opcional)</label>
+        <select name="folder">
+          <option value="">— Sin carpeta —</option>
+          {% for folder in folders %}
+          <option value="{{ folder.pk }}">📁 {{ folder.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="d-flex gap-2" style="justify-content:flex-end">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('newTaskModal').classList.remove('open')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">✅ Crear Tarea</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
