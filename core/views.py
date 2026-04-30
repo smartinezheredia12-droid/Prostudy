@@ -110,7 +110,7 @@ def _apply_daily_penalties(user):
     """Aplica -5 XP por cada día vencido en tareas individuales (solo una vez por día)."""
     overdue = Task.objects.filter(
         user=user, completed=False, task_type='individual',
-        deadline__lt=timezone.now().date()
+        deadline__lt=timezone.localdate()
     )
     profile = user.profile
     for task in overdue:

@@ -155,7 +155,7 @@ class Task(models.Model):
     def days_remaining(self):
         if self.completed:
             return 0
-        return (self.deadline - timezone.now().date()).days
+        return (self.deadline - timezone.localdate()).days
 
     def urgency_class(self):
         if self.completed:
