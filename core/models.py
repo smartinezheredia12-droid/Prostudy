@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from zoneinfo import ZoneInfo
+
+_BOGOTA = ZoneInfo('America/Bogota')
 
 LEAGUES = [
     ("papel",     "📄 Papel",      0),
@@ -155,7 +158,8 @@ class Task(models.Model):
     def days_remaining(self):
         if self.completed:
             return 0
-        return (self.deadline - timezone.localdate()).days
+        today = timezone.now().astimezone(_BOGOTA).date()
+        return (self.deadline - today).days
 
     def urgency_class(self):
         if self.completed:

@@ -8,6 +8,9 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import random
 import datetime
+from zoneinfo import ZoneInfo
+
+_BOGOTA = ZoneInfo('America/Bogota')
 from .models import (UserProfile, Folder, Task, AdminMessage,
                      MotivationalQuote, LEAGUES, xp_for_level)
 
@@ -108,13 +111,14 @@ def dashboard(request):
 
 def _apply_daily_penalties(user):
     """Aplica -5 XP por cada día vencido en tareas individuales (solo una vez por día)."""
+    today = timezone.now().astimezone(_BOGOTA).date()
     overdue = Task.objects.filter(
         user=user, completed=False, task_type='individual',
-        deadline__lt=timezone.localdate()
+        deadline__lt=today
     )
     profile = user.profile
     for task in overdue:
-        days_over = (timezone.now().date() - task.deadline).days
+        days_over = (today - task.deadline).days
         new_days = days_over - task.penalty_applied_days
         if new_days > 0:
             profile.add_xp(-5 * new_days)
